@@ -106,18 +106,22 @@ def h4(matriz):
 def h5(matriz):
 	return max(h1(matriz), h2(matriz), h3(matriz))
 
-def gera_matriz(matriz, i, j, novo1, novo2):
+def gera_matriz(m, i, j, novo1, novo2):
 	mat_aux = no()
-	mat_aux.matriz = copy.deepcopy(matriz)
+	mat_aux.matriz = copy.deepcopy(m.matriz)
 
 	v_aux = mat_aux.matriz[i][j]
 	mat_aux.matriz[i][j] = mat_aux.matriz[novo1][novo2] 
 	mat_aux.matriz[novo1][novo2] = v_aux
 
+	mat_aux.g = m.g + 1
+	mat_aux.h = h3(mat_aux.matriz)
+	mat_aux.f = mat_aux.g + mat_aux.h
+
 	return mat_aux
 
 def gera_sucessor(matriz, sucessores):
-	i, j = calcular_dist(matriz, 0)
+	i, j = calcular_dist(matriz.matriz, 0)
 
 
 	if i == 0:
@@ -203,20 +207,22 @@ def gera_sucessor(matriz, sucessores):
 
 #procura em um dado conjunto o nó com o menor custo f
 def min_f(conjunto):
-	menor = conjunto[0]
+	menor = no()
+	menor.f = 9999
 	for n in conjunto:
 		if n.f <= menor.f:
 			menor = n
 	return menor
 
 def a_estrela(S):
-	A = S
+	A = []
+	A.append(S)
 	F = []
 	T = [[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,0]]
 	sucessores = []
 
-	for s in S:
-		s.h = h4(s.matriz)
+	for s in A:
+		s.h = h3(s.matriz)
 		s.g = 0
 		s.pai = 0
 		s.f = s.g + s.h
@@ -227,31 +233,25 @@ def a_estrela(S):
 
 		#excluir v em A
 		A.remove(v)
-
+		#print(v.f)
 		#para cada matriz m sucessor da matriz v
-		sucessores = gera_sucessor(v.matriz, sucessores)	
+		sucessores = gera_sucessor(v, sucessores)	
 		for m in sucessores:
-			#calcular custo g da matriz m
-			m.g = v.g + 1
-			
+			#print(m.matriz)
 			for mlinha in A:
+				#print(mlinha.matriz)
 				if mlinha.matriz == m.matriz and m.g < mlinha.g:
 					A.remove(mlinha)
 
-			m.pai = v
-			m.h = h4(m.matriz)
-			m.f = m.g + m.h
 			if (m not in A) and (m not in F):
-				#print(m.matriz)
 				A.append(m)
-			else:
-				m.g -= 1
+				m.pai = v
 
 		v = min_f(A)
 	
 	#Se existe v pertence a A tal que v é o f(n) min ou v == T então sucesso, senão fracasso
 	#print(v.g)
-	#print(v.matriz)
+	print(v.matriz)
 	if v.matriz == T:
 		print(v.g)
 	else:
@@ -270,11 +270,12 @@ def main():
 	#h1(matriz)
 	#h2(matriz)
 	#h3(matriz)
-	print_matriz(matriz)
+	#print_matriz(matriz)
 	no1.matriz = matriz
+	'''
 	S = []
 	S.append(no1)
-	'''
+	
 	sucessores = []
 	sucessores = gera_sucessor(matriz, sucessores)
 	for s in sucessores:
@@ -282,7 +283,7 @@ def main():
 		no_x.matriz = s.matriz
 		S.append(no_x)
 	'''
-	a_estrela(S)
+	a_estrela(no1)
 
 if __name__ == '__main__':
 	main()
